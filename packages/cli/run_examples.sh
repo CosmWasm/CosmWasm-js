@@ -3,6 +3,7 @@ set -o errexit -o nounset -o pipefail
 command -v shellcheck >/dev/null && shellcheck "$0"
 
 yarn node ./bin/cosmwasm-cli --init examples/coralnet.ts --code "process.exit(0)"
+yarn node ./bin/cosmwasm-cli --init examples/cosmos_purpose.ts --code "process.exit(0)"
 if [ -n "${LAUNCHPAD_ENABLED:-}" ]; then
   yarn node ./bin/cosmwasm-cli --init examples/delegate.ts --code "process.exit(0)"
 fi

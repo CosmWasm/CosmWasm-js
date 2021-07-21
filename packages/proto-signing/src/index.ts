@@ -20,7 +20,7 @@ export {
   DirectSecp256k1HdWalletOptions,
 } from "./directsecp256k1hdwallet";
 export { DirectSecp256k1Wallet } from "./directsecp256k1wallet";
-export { makeCosmoshubPath } from "./paths";
+export { makeCosmoshubPath, makeCosmosPath, makeSimpleHdPath } from "./paths";
 export { decodePubkey, encodePubkey } from "./pubkey";
 export {
   AccountData,
