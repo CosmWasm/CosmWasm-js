@@ -29,6 +29,9 @@ export {
   pubkeyToAddress,
   pubkeyType,
   serializeSignDoc,
+  isStdTx,
+  makeStdTx,
+  StdTx,
 } from "@cosmjs/amino";
 import { SinglePubkey } from "@cosmjs/amino";
 /** @deprecated PubKey is deprecated. Use `SinglePubkey` or the more general `Pubkey` from `@cosmjs/amino`. */
@@ -157,4 +160,4 @@ export {
 } from "./msgs";
 export { findSequenceForSignedTx } from "./sequence";
 export { CosmosFeeTable, SigningCosmosClient } from "./signingcosmosclient";
-export { isStdTx, isWrappedStdTx, makeStdTx, CosmosSdkTx, StdTx, WrappedStdTx, WrappedTx } from "./tx";
+export { isWrappedStdTx, CosmosSdkTx, WrappedStdTx, WrappedTx } from "./tx";

@@ -1,4 +1,4 @@
-import { Coin, Pubkey } from "@cosmjs/amino";
+import { Coin, Pubkey, StdTx } from "@cosmjs/amino";
 import { sha256 } from "@cosmjs/crypto";
 import { fromBase64, fromHex, toHex } from "@cosmjs/encoding";
 import { Uint53 } from "@cosmjs/math";
@@ -12,7 +12,7 @@ import {
   uint64ToNumber,
 } from "./lcdapi";
 import { Log, parseLogs } from "./logs";
-import { StdTx, WrappedStdTx } from "./tx";
+import { WrappedStdTx } from "./tx";
 
 export interface GetSequenceResult {
   readonly accountNumber: number;

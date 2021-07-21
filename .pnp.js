@@ -3967,6 +3967,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["eslint-plugin-prettier", "virtual:4f1584ad4aba8733a24be7c8aebbffafef25607f2d00f4b314cf96717145c692763628a31c2b85d4686fbb091ff21ebffa3cc337399c042c19a32b9bdb786464#npm:3.4.0"],
             ["eslint-plugin-simple-import-sort", "virtual:4f1584ad4aba8733a24be7c8aebbffafef25607f2d00f4b314cf96717145c692763628a31c2b85d4686fbb091ff21ebffa3cc337399c042c19a32b9bdb786464#npm:7.0.0"],
             ["esm", "npm:3.2.25"],
+            ["fast-deep-equal", "npm:3.1.3"],
             ["glob", "npm:7.1.7"],
             ["jasmine", "npm:3.7.0"],
             ["jasmine-core", "npm:3.7.1"],

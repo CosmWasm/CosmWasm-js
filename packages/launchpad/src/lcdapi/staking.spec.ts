@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { coin, coins, makeSignDoc, Secp256k1HdWallet } from "@cosmjs/amino";
+import { coin, coins, makeSignDoc, makeStdTx, Secp256k1HdWallet } from "@cosmjs/amino";
 import { assert, sleep } from "@cosmjs/utils";
 
 import { assertIsBroadcastTxSuccess } from "../cosmosclient";
@@ -14,7 +14,6 @@ import {
   nonNegativeIntegerMatcher,
   pendingWithoutLaunchpad,
 } from "../testutils.spec";
-import { makeStdTx } from "../tx";
 import { LcdClient } from "./lcdclient";
 import { BondStatus, setupStakingExtension, StakingExtension } from "./staking";
 

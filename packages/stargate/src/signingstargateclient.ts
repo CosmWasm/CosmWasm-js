@@ -1,5 +1,16 @@
-import { encodeSecp256k1Pubkey, makeSignDoc as makeSignDocAmino, StdFee } from "@cosmjs/amino";
-import { fromBase64 } from "@cosmjs/encoding";
+import {
+  AminoMsg,
+  encodeSecp256k1Pubkey,
+  isSecp256k1Pubkey,
+  makeSignDoc as makeSignDocAmino,
+  makeStdTx,
+  rawSecp256k1PubkeyToRawAddress,
+  serializeSignDoc,
+  StdFee,
+  StdTx,
+} from "@cosmjs/amino";
+import { Secp256k1, Secp256k1Signature, sha256 } from "@cosmjs/crypto";
+import { Bech32, fromBase64, toBase64 } from "@cosmjs/encoding";
 import { Int53 } from "@cosmjs/math";
 import {
   EncodeObject,
@@ -13,7 +24,7 @@ import {
   TxBodyEncodeObject,
 } from "@cosmjs/proto-signing";
 import { Tendermint34Client } from "@cosmjs/tendermint-rpc";
-import { assert } from "@cosmjs/utils";
+import { arrayContentEquals, assert, isNonNullObject } from "@cosmjs/utils";
 import { MsgMultiSend } from "cosmjs-types/cosmos/bank/v1beta1/tx";
 import { Coin } from "cosmjs-types/cosmos/base/v1beta1/coin";
 import {
@@ -57,6 +68,7 @@ import {
   MsgConnectionOpenInit,
   MsgConnectionOpenTry,
 } from "cosmjs-types/ibc/core/connection/v1/tx";
+import equals from "fast-deep-equal";
 import Long from "long";
 
 import { AminoTypes } from "./aminotypes";
@@ -103,6 +115,28 @@ export const defaultRegistryTypes: ReadonlyArray<[string, GeneratedType]> = [
 
 function createDefaultRegistry(): Registry {
   return new Registry(defaultRegistryTypes);
+}
+
+/**
+ * See ADR-036
+ */
+interface MsgSignData extends AminoMsg {
+  readonly type: "sign/MsgSignData";
+  readonly value: {
+    /** Bech32 account address */
+    signer: string;
+    /** Base64 encoded data */
+    data: string;
+  };
+}
+
+export function isMsgSignData(msg: AminoMsg): msg is MsgSignData {
+  const castedMsg = msg as MsgSignData;
+  if (castedMsg.type !== "sign/MsgSignData") return false;
+  if (!isNonNullObject(castedMsg.value)) return false;
+  if (typeof castedMsg.value.signer !== "string") return false;
+  if (typeof castedMsg.value.data !== "string") return false;
+  return true;
 }
 
 /**
@@ -321,6 +355,94 @@ export class SigningStargateClient extends StargateClient {
     return isOfflineDirectSigner(this.signer)
       ? this.signDirect(signerAddress, messages, fee, memo, signerData)
       : this.signAmino(signerAddress, messages, fee, memo, signerData);
+  }
+
+  public async experimentalAdr36Sign(signerAddress: string, data: Uint8Array | Uint8Array[]): Promise<StdTx> {
+    const accountNumber = 0;
+    const sequence = 0;
+    const chainId = "";
+    const fee: StdFee = {
+      gas: "0",
+      amount: [],
+    };
+    const memo = "";
+
+    const datas = Array.isArray(data) ? data : [data];
+
+    const msgs: MsgSignData[] = datas.map(
+      (d): MsgSignData => ({
+        type: "sign/MsgSignData",
+        value: {
+          signer: signerAddress,
+          data: toBase64(d),
+        },
+      }),
+    );
+
+    assert(!isOfflineDirectSigner(this.signer));
+    const accountFromSigner = (await this.signer.getAccounts()).find(
+      (account) => account.address === signerAddress,
+    );
+    if (!accountFromSigner) {
+      throw new Error("Failed to retrieve account from signer");
+    }
+    const signDoc = makeSignDocAmino(msgs, fee, chainId, memo, accountNumber, sequence);
+    const { signature, signed } = await this.signer.signAmino(signerAddress, signDoc);
+    if (!equals(signDoc, signed)) {
+      throw new Error(
+        "The signed document differs from the signing instruction. This is not supported for ADR-036.",
+      );
+    }
+
+    return makeStdTx(signDoc, signature);
+  }
+
+  public static async experimentalAdr36Verify(signed: StdTx): Promise<boolean> {
+    // Restrictions from ADR-036
+    if (signed.memo !== "") throw new Error("Memo must be empty.");
+    if (signed.fee.gas !== "0") throw new Error("Fee gas must 0.");
+    if (signed.fee.amount.length !== 0) throw new Error("Fee amount must be an empty array.");
+
+    const accountNumber = 0;
+    const sequence = 0;
+    const chainId = "";
+
+    // Check `msg` array
+    const signedMessages = signed.msg;
+    if (!signedMessages.every(isMsgSignData)) {
+      throw new Error(`Found message that is not the expected type.`);
+    }
+    if (signedMessages.length === 0) {
+      throw new Error("No message found. Without messages we cannot determine the signer address.");
+    }
+    // TODO: restrict number of messages?
+
+    const signatures = signed.signatures;
+    if (signatures.length !== 1) throw new Error("Must have exactly one signature to be supported.");
+    const signature = signatures[0];
+    if (!isSecp256k1Pubkey(signature.pub_key)) {
+      throw new Error("Only secp256k1 signatures are supported.");
+    }
+
+    const signBytes = serializeSignDoc(
+      makeSignDocAmino(signed.msg, signed.fee, chainId, signed.memo, accountNumber, sequence),
+    );
+    const prehashed = sha256(signBytes);
+
+    const secpSignature = Secp256k1Signature.fromFixedLength(fromBase64(signature.signature));
+    const rawSecp256k1Pubkey = fromBase64(signature.pub_key.value);
+    const rawSignerAddress = rawSecp256k1PubkeyToRawAddress(rawSecp256k1Pubkey);
+
+    if (
+      signedMessages.some(
+        (msg) => !arrayContentEquals(Bech32.decode(msg.value.signer).data, rawSignerAddress),
+      )
+    ) {
+      throw new Error("Found mismatch between signer in message and public key");
+    }
+
+    const ok = await Secp256k1.verifySignature(secpSignature, prehashed, rawSecp256k1Pubkey);
+    return ok;
   }
 
   private async signAmino(

@@ -1,5 +1,14 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { Coin, coins, makeCosmoshubPath, makeSignDoc, Secp256k1HdWallet, StdFee } from "@cosmjs/amino";
+import {
+  Coin,
+  coins,
+  makeCosmoshubPath,
+  makeSignDoc,
+  makeStdTx,
+  Secp256k1HdWallet,
+  StdFee,
+  StdTx,
+} from "@cosmjs/amino";
 import { assert, sleep } from "@cosmjs/utils";
 
 import { isBroadcastTxFailure } from "../cosmosclient";
@@ -17,7 +26,7 @@ import {
   tendermintIdMatcher,
   unused,
 } from "../testutils.spec";
-import { isWrappedStdTx, makeStdTx, StdTx } from "../tx";
+import { isWrappedStdTx } from "../tx";
 import { setupAuthExtension } from "./auth";
 import { TxsResponse } from "./base";
 import { LcdApiArray, LcdClient } from "./lcdclient";

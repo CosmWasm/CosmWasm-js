@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { makeSignDoc, Secp256k1HdWallet, StdFee } from "@cosmjs/amino";
+import { makeSignDoc, makeStdTx, Secp256k1HdWallet, StdFee } from "@cosmjs/amino";
 import { assert, sleep } from "@cosmjs/utils";
 import { ReadonlyDate } from "readonly-date";
 
@@ -15,7 +15,7 @@ import {
   tendermintIdMatcher,
   unused,
 } from "./testutils.spec";
-import { isWrappedStdTx, makeStdTx } from "./tx";
+import { isWrappedStdTx } from "./tx";
 
 const blockTime = 1_000; // ms
 

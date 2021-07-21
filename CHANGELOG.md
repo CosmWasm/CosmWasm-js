@@ -15,6 +15,9 @@ and this project adheres to
   for Tendermint v0.33.
 - @cosmjs/tendermint-rpc: Exports relating to `Tendermint33Client` are now
   available under `tendermint33`.
+- @cosmjs/amino: Added `StdTx`, `isStdTx` and `makeStdTx` and removed them from
+  @cosmjs/launchpad. They are re-exported in @cosmjs/launchpad for backwards
+  compatibility.
 
 ### Changed
 

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { coins, makeSignDoc, Secp256k1HdWallet } from "@cosmjs/amino";
+import { coins, makeSignDoc, makeStdTx, Secp256k1HdWallet } from "@cosmjs/amino";
 import { assert, sleep } from "@cosmjs/utils";
 
 import { CosmosClient, isBroadcastTxFailure } from "./cosmosclient";
@@ -14,7 +14,7 @@ import {
   makeRandomAddress,
   pendingWithoutLaunchpad,
 } from "./testutils.spec";
-import { makeStdTx, WrappedStdTx } from "./tx";
+import { WrappedStdTx } from "./tx";
 
 interface TestTxSend {
   readonly sender: string;

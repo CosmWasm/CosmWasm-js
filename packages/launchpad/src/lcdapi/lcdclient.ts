@@ -1,8 +1,9 @@
 /* eslint-disable no-dupe-class-members, @typescript-eslint/ban-types, @typescript-eslint/naming-convention */
+import { StdTx } from "@cosmjs/amino";
 import { assert, isNonNullObject } from "@cosmjs/utils";
 import axios, { AxiosError, AxiosInstance } from "axios";
 
-import { StdTx, WrappedStdTx } from "../tx";
+import { WrappedStdTx } from "../tx";
 import {
   BlockResponse,
   BroadcastMode,
