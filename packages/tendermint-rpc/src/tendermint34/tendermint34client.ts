@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { Stream } from "xstream";
 
-import { createJsonRpcRequest } from "../jsonrpc";
 import {
   HttpClient,
   instanceOfRpcStreamingClient,
@@ -29,28 +28,7 @@ export class Tendermint34Client {
    * Creates a new Tendermint client given an RPC client.
    */
   public static async create(rpcClient: RpcClient): Promise<Tendermint34Client> {
-    // For some very strange reason I don't understand, tests start to fail on some systems
-    // (our CI) when skipping the status call before doing other queries. Sleeping a little
-    // while did not help. Thus we query the version as a way to say "hi" to the backend,
-    // even in cases where we don't use the result.
-    const _version = await this.detectVersion(rpcClient);
     return new Tendermint34Client(rpcClient);
-  }
-
-  private static async detectVersion(client: RpcClient): Promise<string> {
-    const req = createJsonRpcRequest(requests.Method.Status);
-    const response = await client.execute(req);
-    const result = response.result;
-
-    if (!result || !result.node_info) {
-      throw new Error("Unrecognized format for status response");
-    }
-
-    const version = result.node_info.version;
-    if (typeof version !== "string") {
-      throw new Error("Unrecognized version format: must be string");
-    }
-    return version;
   }
 
   private readonly client: RpcClient;
