@@ -339,21 +339,21 @@ export class SigningCosmWasmClient extends CosmWasmClient {
   public async execute(
     senderAddress: string,
     contractAddress: string,
-    msg: Record<string, unknown>,
+    msgs: Array<Record<string, unknown>>,
     fee: StdFee,
     memo = "",
     funds?: readonly Coin[],
   ): Promise<ExecuteResult> {
-    const executeContractMsg: MsgExecuteContractEncodeObject = {
+    const executeContractMsgs: Array<MsgExecuteContractEncodeObject> = msgs.map((m) => {return {
       typeUrl: "/cosmwasm.wasm.v1.MsgExecuteContract",
       value: MsgExecuteContract.fromPartial({
         sender: senderAddress,
         contract: contractAddress,
-        msg: toUtf8(JSON.stringify(msg)),
+        msg: toUtf8(JSON.stringify(m)),
         funds: [...(funds || [])],
       }),
-    };
-    const result = await this.signAndBroadcast(senderAddress, [executeContractMsg], fee, memo);
+    }});
+    const result = await this.signAndBroadcast(senderAddress, [executeContractMsgs], fee, memo);
     if (isBroadcastTxFailure(result)) {
       throw new Error(createBroadcastTxErrorMessage(result));
     }
