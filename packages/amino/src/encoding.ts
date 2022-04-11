@@ -12,12 +12,13 @@ import {
   Secp256k1Pubkey,
 } from "./pubkeys";
 
-export function encodeSecp256k1Pubkey(pubkey: Uint8Array): Secp256k1Pubkey {
+export function encodeSecp256k1Pubkey(pubkey: Uint8Array, urlType?: string): Secp256k1Pubkey {  
   if (pubkey.length !== 33 || (pubkey[0] !== 0x02 && pubkey[0] !== 0x03)) {
     throw new Error("Public key must be compressed secp256k1, i.e. 33 bytes starting with 0x02 or 0x03");
   }
+  urlType = urlType? urlType  : pubkeyType.secp256k1
   return {
-    type: pubkeyType.secp256k1,
+    type: urlType,
     value: toBase64(pubkey),
   };
 }

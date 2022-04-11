@@ -16,7 +16,7 @@ export function isEd25519Pubkey(pubkey: Pubkey): pubkey is Ed25519Pubkey {
 }
 
 export interface Secp256k1Pubkey extends SinglePubkey {
-  readonly type: "tendermint/PubKeySecp256k1";
+  readonly type: string;
   readonly value: string;
 }
 

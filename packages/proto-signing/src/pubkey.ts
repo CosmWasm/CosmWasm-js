@@ -56,6 +56,9 @@ export function decodePubkey(pubkey?: Any | null): Pubkey | null {
     case "/cosmos.crypto.secp256k1.PubKey": {
       return decodeSinglePubkey(pubkey);
     }
+    case "/ethermint.crypto.v1.ethsecp256k1.PubKey": {
+      return decodeSinglePubkey(pubkey);
+    }
     case "/cosmos.crypto.multisig.LegacyAminoPubKey": {
       const { threshold, publicKeys } = LegacyAminoPubKey.decode(pubkey.value);
       const out: MultisigThresholdPubkey = {
