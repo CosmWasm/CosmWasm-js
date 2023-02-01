@@ -45,14 +45,13 @@
     "@cosmjs/math": "workspace:^",
     "@cosmjs/utils": "workspace:^",
     "@noble/hashes": "^1",
+    "@noble/secp256k1": "^1.7.0",
     "bn.js": "^5.2.0",
-    "elliptic": "^6.5.4",
     "libsodium-wrappers": "^0.7.6"
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
     "@types/bn.js": "^5",
-    "@types/elliptic": "^6.4.14",
     "@types/eslint-plugin-prettier": "^3",
     "@types/jasmine": "^4",
     "@types/karma-firefox-launcher": "^2",

@@ -355,6 +355,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "npm:1.0.0"\
       ],\
       [\
+        "@noble/secp256k1",\
+        "npm:1.7.0"\
+      ],\
+      [\
         "@nodelib/fs.scandir",\
         "npm:2.1.4"\
       ],\
@@ -465,10 +469,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       [\
         "@types/diff",\
         "npm:4.0.2"\
-      ],\
-      [\
-        "@types/elliptic",\
-        "npm:6.4.14"\
       ],\
       [\
         "@types/eslint",\
@@ -875,10 +875,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "npm:3.0.2"\
       ],\
       [\
-        "brorand",\
-        "npm:1.1.0"\
-      ],\
-      [\
         "browserslist",\
         "npm:4.16.6"\
       ],\
@@ -1125,10 +1121,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       [\
         "electron-to-chromium",\
         "npm:1.3.734"\
-      ],\
-      [\
-        "elliptic",\
-        "npm:6.5.4"\
       ],\
       [\
         "emoji-regex",\
@@ -1483,16 +1475,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "npm:3.1.0"\
       ],\
       [\
-        "hash.js",\
-        "npm:1.1.7"\
-      ],\
-      [\
         "hasha",\
         "npm:5.2.2"\
-      ],\
-      [\
-        "hmac-drbg",\
-        "npm:1.0.1"\
       ],\
       [\
         "hosted-git-info",\
@@ -1941,14 +1925,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       [\
         "mimic-response",\
         "npm:2.1.0"\
-      ],\
-      [\
-        "minimalistic-assert",\
-        "npm:1.0.1"\
-      ],\
-      [\
-        "minimalistic-crypto-utils",\
-        "npm:1.0.1"\
       ],\
       [\
         "minimatch",\
@@ -3321,8 +3297,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@cosmjs/utils", "workspace:packages/utils"],\
             ["@istanbuljs/nyc-config-typescript", "virtual:4f1584ad4aba8733a24be7c8aebbffafef25607f2d00f4b314cf96717145c692763628a31c2b85d4686fbb091ff21ebffa3cc337399c042c19a32b9bdb786464#npm:1.0.1"],\
             ["@noble/hashes", "npm:1.0.0"],\
+            ["@noble/secp256k1", "npm:1.7.0"],\
             ["@types/bn.js", "npm:5.1.0"],\
-            ["@types/elliptic", "npm:6.4.14"],\
             ["@types/eslint-plugin-prettier", "npm:3.1.0"],\
             ["@types/jasmine", "npm:4.0.3"],\
             ["@types/karma-firefox-launcher", "npm:2.1.0"],\
@@ -3334,7 +3310,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@typescript-eslint/parser", "virtual:4f1584ad4aba8733a24be7c8aebbffafef25607f2d00f4b314cf96717145c692763628a31c2b85d4686fbb091ff21ebffa3cc337399c042c19a32b9bdb786464#npm:5.13.0"],\
             ["bn.js", "npm:5.2.0"],\
             ["buffer", "npm:6.0.3"],\
-            ["elliptic", "npm:6.5.4"],\
             ["eslint", "npm:7.26.0"],\
             ["eslint-config-prettier", "virtual:4f1584ad4aba8733a24be7c8aebbffafef25607f2d00f4b314cf96717145c692763628a31c2b85d4686fbb091ff21ebffa3cc337399c042c19a32b9bdb786464#npm:8.3.0"],\
             ["eslint-import-resolver-node", "npm:0.3.4"],\
@@ -4171,6 +4146,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD"\
         }]\
       ]],\
+      ["@noble/secp256k1", [\
+        ["npm:1.7.0", {\
+          "packageLocation": "./.yarn/cache/@noble-secp256k1-npm-1.7.0-f0260161c3-540a2b8e52.zip/node_modules/@noble/secp256k1/",\
+          "packageDependencies": [\
+            ["@noble/secp256k1", "npm:1.7.0"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
       ["@nodelib/fs.scandir", [\
         ["npm:2.1.4", {\
           "packageLocation": "./.yarn/cache/@nodelib-fs.scandir-npm-2.1.4-6f6ddb2372-18c2150ab5.zip/node_modules/@nodelib/fs.scandir/",\
@@ -4437,16 +4421,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/@types-diff-npm-4.0.2-e0c9c256aa-80986254f8.zip/node_modules/@types/diff/",\
           "packageDependencies": [\
             ["@types/diff", "npm:4.0.2"]\
-          ],\
-          "linkType": "HARD"\
-        }]\
-      ]],\
-      ["@types/elliptic", [\
-        ["npm:6.4.14", {\
-          "packageLocation": "./.yarn/cache/@types-elliptic-npm-6.4.14-77735f3256-d5a64f540e.zip/node_modules/@types/elliptic/",\
-          "packageDependencies": [\
-            ["@types/elliptic", "npm:6.4.14"],\
-            ["@types/bn.js", "npm:5.1.0"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -6354,13 +6328,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["bn.js", [\
-        ["npm:4.12.0", {\
-          "packageLocation": "./.yarn/cache/bn.js-npm-4.12.0-3ec6c884f6-39afb4f15f.zip/node_modules/bn.js/",\
-          "packageDependencies": [\
-            ["bn.js", "npm:4.12.0"]\
-          ],\
-          "linkType": "HARD"\
-        }],\
         ["npm:5.2.0", {\
           "packageLocation": "./.yarn/cache/bn.js-npm-5.2.0-11748c0b07-6117170393.zip/node_modules/bn.js/",\
           "packageDependencies": [\
@@ -6413,15 +6380,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["braces", "npm:3.0.2"],\
             ["fill-range", "npm:7.0.1"]\
-          ],\
-          "linkType": "HARD"\
-        }]\
-      ]],\
-      ["brorand", [\
-        ["npm:1.1.0", {\
-          "packageLocation": "./.yarn/cache/brorand-npm-1.1.0-ea86634c4b-8a05c9f3c4.zip/node_modules/brorand/",\
-          "packageDependencies": [\
-            ["brorand", "npm:1.1.0"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -7206,22 +7164,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/electron-to-chromium-npm-1.3.734-b9a1cae538-129a13f372.zip/node_modules/electron-to-chromium/",\
           "packageDependencies": [\
             ["electron-to-chromium", "npm:1.3.734"]\
-          ],\
-          "linkType": "HARD"\
-        }]\
-      ]],\
-      ["elliptic", [\
-        ["npm:6.5.4", {\
-          "packageLocation": "./.yarn/cache/elliptic-npm-6.5.4-0ca8204a86-d56d21fd04.zip/node_modules/elliptic/",\
-          "packageDependencies": [\
-            ["elliptic", "npm:6.5.4"],\
-            ["bn.js", "npm:4.12.0"],\
-            ["brorand", "npm:1.1.0"],\
-            ["hash.js", "npm:1.1.7"],\
-            ["hmac-drbg", "npm:1.0.1"],\
-            ["inherits", "npm:2.0.4"],\
-            ["minimalistic-assert", "npm:1.0.1"],\
-            ["minimalistic-crypto-utils", "npm:1.0.1"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -8373,17 +8315,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD"\
         }]\
       ]],\
-      ["hash.js", [\
-        ["npm:1.1.7", {\
-          "packageLocation": "./.yarn/cache/hash.js-npm-1.1.7-f1ad187358-e350096e65.zip/node_modules/hash.js/",\
-          "packageDependencies": [\
-            ["hash.js", "npm:1.1.7"],\
-            ["inherits", "npm:2.0.4"],\
-            ["minimalistic-assert", "npm:1.0.1"]\
-          ],\
-          "linkType": "HARD"\
-        }]\
-      ]],\
       ["hasha", [\
         ["npm:5.2.2", {\
           "packageLocation": "./.yarn/cache/hasha-npm-5.2.2-d171116d12-06cc474bed.zip/node_modules/hasha/",\
@@ -8391,18 +8322,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["hasha", "npm:5.2.2"],\
             ["is-stream", "npm:2.0.0"],\
             ["type-fest", "npm:0.8.1"]\
-          ],\
-          "linkType": "HARD"\
-        }]\
-      ]],\
-      ["hmac-drbg", [\
-        ["npm:1.0.1", {\
-          "packageLocation": "./.yarn/cache/hmac-drbg-npm-1.0.1-3499ad31cd-bd30b6a68d.zip/node_modules/hmac-drbg/",\
-          "packageDependencies": [\
-            ["hmac-drbg", "npm:1.0.1"],\
-            ["hash.js", "npm:1.1.7"],\
-            ["minimalistic-assert", "npm:1.0.1"],\
-            ["minimalistic-crypto-utils", "npm:1.0.1"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -9699,24 +9618,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/mimic-response-npm-2.1.0-037463e454-014fad6ab9.zip/node_modules/mimic-response/",\
           "packageDependencies": [\
             ["mimic-response", "npm:2.1.0"]\
-          ],\
-          "linkType": "HARD"\
-        }]\
-      ]],\
-      ["minimalistic-assert", [\
-        ["npm:1.0.1", {\
-          "packageLocation": "./.yarn/cache/minimalistic-assert-npm-1.0.1-dc8bb23d29-cc7974a926.zip/node_modules/minimalistic-assert/",\
-          "packageDependencies": [\
-            ["minimalistic-assert", "npm:1.0.1"]\
-          ],\
-          "linkType": "HARD"\
-        }]\
-      ]],\
-      ["minimalistic-crypto-utils", [\
-        ["npm:1.0.1", {\
-          "packageLocation": "./.yarn/cache/minimalistic-crypto-utils-npm-1.0.1-e66b10822e-6e8a0422b3.zip/node_modules/minimalistic-crypto-utils/",\
-          "packageDependencies": [\
-            ["minimalistic-crypto-utils", "npm:1.0.1"]\
           ],\
           "linkType": "HARD"\
         }]\

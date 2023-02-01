@@ -21,9 +21,11 @@ and this project adheres to
 - @cosmjs/proto-signing: Remove `fromJSON`/`toJSON` from `TsProtoGeneratedType`
   such that generated types are not required to generate those anymore. The
   methods were provided by ts-proto but we never needed them. ([#1329])
+- @cosmjs/crypto: Migrate from elliptic to noble-secp256k1 ([#1272]).
 
 [#1002]: https://github.com/cosmos/cosmjs/issues/1002
 [#1240]: https://github.com/cosmos/cosmjs/pull/1240
+[#1272]: https://github.com/cosmos/cosmjs/issues/1272
 [#1289]: https://github.com/cosmos/cosmjs/issues/1289
 [#1291]: https://github.com/cosmos/cosmjs/issues/1291
 [#1329]: https://github.com/cosmos/cosmjs/pull/1329
