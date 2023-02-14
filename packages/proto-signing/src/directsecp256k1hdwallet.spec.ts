@@ -3,6 +3,7 @@ import { Secp256k1, Secp256k1Signature, sha256 } from "@cosmjs/crypto";
 import { fromBase64, fromHex } from "@cosmjs/encoding";
 
 import { DirectSecp256k1HdWallet, extractKdfConfiguration } from "./directsecp256k1hdwallet";
+import { DirectSecp256k1HdWallet as DirectSecp256k1HdWallet_v0_26_2 } from "proto-signing-v0-26-2"
 import { makeAuthInfoBytes, makeSignBytes, makeSignDoc } from "./signing";
 import { base64Matcher, faucet, testVectors } from "./testutils.spec";
 import { executeKdf, KdfConfiguration } from "./wallet";
@@ -121,6 +122,23 @@ describe("DirectSecp256k1HdWallet", () => {
           algo: "secp256k1",
           pubkey: fromBase64("Aum2063ub/ErUnIUB36sK55LktGUStgcbSiaAnL1wadu"),
           address: "wasm1hsm76p4ahyhl5yh3ve9ur49r5kemhp2r93f89d",
+        },
+      ]);
+    });
+
+    it("can restore: backward compatibility test", async () => {
+      const original = await DirectSecp256k1HdWallet_v0_26_2.fromMnemonic(defaultMnemonic);
+      const password = "123";
+      const serialized = await original.serialize(password);
+      const deserialized = await DirectSecp256k1HdWallet.deserialize(serialized, password);
+      const accounts = await deserialized.getAccounts();
+
+      expect(deserialized.mnemonic).toEqual(defaultMnemonic);
+      expect(accounts).toEqual([
+        {
+          algo: "secp256k1",
+          address: defaultAddress,
+          pubkey: defaultPubkey,
         },
       ]);
     });
@@ -300,6 +318,15 @@ describe("DirectSecp256k1HdWallet", () => {
         },
         data: jasmine.stringMatching(base64Matcher),
       });
+    });
+
+    it("Store a salt next to the serialization options", async () => {
+      const original = await DirectSecp256k1HdWallet.fromMnemonic(defaultMnemonic);
+      const password = "123";
+      const serialized = await original.serialize(password);
+      const parsed = JSON.parse(serialized);
+
+      expect(Object.keys(parsed.kdf.params)).toContain('salt');
     });
   });
 

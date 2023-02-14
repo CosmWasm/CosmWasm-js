@@ -33,6 +33,9 @@ export function isArgon2idOptions(thing: unknown): thing is Argon2idOptions {
   return true;
 }
 
+// Equal to sodium.crypto_pwhash_SALTBYTES (16)
+export const sodiumSaltBytes = 16;
+
 export class Argon2id {
   public static async execute(
     password: string,

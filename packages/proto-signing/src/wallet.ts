@@ -4,15 +4,9 @@ import {
   Random,
   xchacha20NonceLength,
   Xchacha20poly1305Ietf,
+  sodiumSaltBytes,
 } from "@cosmjs/crypto";
 import { toAscii } from "@cosmjs/encoding";
-
-/**
- * A fixed salt is chosen to archive a deterministic password to key derivation.
- * This reduces the scope of a potential rainbow attack to all CosmJS users.
- * Must be 16 bytes due to implementation limitations.
- */
-export const cosmjsSalt = toAscii("The CosmJS salt.");
 
 export interface KdfConfiguration {
   /**
@@ -28,7 +22,8 @@ export async function executeKdf(password: string, configuration: KdfConfigurati
     case "argon2id": {
       const options = configuration.params;
       if (!isArgon2idOptions(options)) throw new Error("Invalid format of argon2id params");
-      return Argon2id.execute(password, cosmjsSalt, options);
+      const salt: Uint8Array = Random.getBytes(sodiumSaltBytes);
+      return Argon2id.execute(password, salt, options);
     }
     default:
       throw new Error("Unsupported KDF algorithm");
@@ -59,7 +54,7 @@ export async function encrypt(
 ): Promise<Uint8Array> {
   switch (config.algorithm) {
     case supportedAlgorithms.xchacha20poly1305Ietf: {
-      const nonce = Random.getBytes(xchacha20NonceLength);
+      const nonce: Uint8Array = Random.getBytes(xchacha20NonceLength);
       // Prepend fixed-length nonce to ciphertext as suggested in the example from https://github.com/jedisct1/libsodium.js#api
       return new Uint8Array([
         ...nonce,
