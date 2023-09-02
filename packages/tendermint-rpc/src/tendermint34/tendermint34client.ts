@@ -13,13 +13,23 @@ import { adaptor34, Decoder, Encoder, Params, Responses } from "./adaptor";
 import * as requests from "./requests";
 import * as responses from "./responses";
 
+export interface Tendermint34ClientOptions {
+  /**
+   * Max permitted diff in ms between node status.sync_info.latest_block_time and new Date()
+   */
+  maxAge?: number;
+}
+
 export class Tendermint34Client {
   /**
    * Creates a new Tendermint client for the given endpoint.
    *
    * Uses HTTP when the URL schema is http or https. Uses WebSockets otherwise.
    */
-  public static async connect(endpoint: string | HttpEndpoint): Promise<Tendermint34Client> {
+  public static async connect(
+    endpoint: string | HttpEndpoint,
+    options?: Tendermint34ClientOptions,
+  ): Promise<Tendermint34Client> {
     let rpcClient: RpcClient;
     if (typeof endpoint === "object") {
       rpcClient = new HttpClient(endpoint);
@@ -32,7 +42,7 @@ export class Tendermint34Client {
     // (our CI) when skipping the status call before doing other queries. Sleeping a little
     // while did not help. Thus we query the version as a way to say "hi" to the backend,
     // even in cases where we don't use the result.
-    const _version = await this.detectVersion(rpcClient);
+    const _version = await this.detectVersion(rpcClient, options);
 
     return Tendermint34Client.create(rpcClient);
   }
@@ -44,7 +54,10 @@ export class Tendermint34Client {
     return new Tendermint34Client(rpcClient);
   }
 
-  private static async detectVersion(client: RpcClient): Promise<string> {
+  private static async detectVersion(
+    client: RpcClient,
+    options?: Tendermint34ClientOptions,
+  ): Promise<string> {
     const req = createJsonRpcRequest(requests.Method.Status);
     const response = await client.execute(req);
     const result = response.result;
@@ -56,6 +69,14 @@ export class Tendermint34Client {
     const version = result.node_info.version;
     if (typeof version !== "string") {
       throw new Error("Unrecognized version format: must be string");
+    }
+
+    if (
+      options &&
+      options.maxAge &&
+      new Date().getTime() - new Date(result.sync_info.latest_block_time).getTime() > options.maxAge
+    ) {
+      throw new Error(`Stale client: Latest block time ${result.sync_info.latest_block_time}`);
     }
     return version;
   }
