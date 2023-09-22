@@ -17,6 +17,15 @@ export function compareArrays(a: Uint8Array, b: Uint8Array): number {
   return aHex === bHex ? 0 : aHex < bHex ? -1 : 1;
 }
 
+/**
+ * Creates a multisig pubkey of type tendermint/PubKeyMultisigThreshold.
+ * This is a single pubkey which internally includes the list of potential signers
+ * as well as the threshold value.
+ *
+ * The provided pubkeys are sorted internally. For some rare cases where unsorted
+ * multisig addresses have been created you can set the `nosort` argument to true
+ * to deactivate the sorting.
+ */
 export function createMultisigThresholdPubkey(
   pubkeys: readonly SinglePubkey[],
   threshold: number,

@@ -1,4 +1,9 @@
-import { encodeSecp256k1Pubkey, makeSignDoc as makeSignDocAmino, StdFee } from "@cosmjs/amino";
+import {
+  encodeSecp256k1Pubkey,
+  makeSignDoc as makeSignDocAmino,
+  MultisigThresholdPubkey,
+  StdFee,
+} from "@cosmjs/amino";
 import { fromBase64 } from "@cosmjs/encoding";
 import { Int53, Uint53 } from "@cosmjs/math";
 import {
@@ -56,6 +61,7 @@ import {
   createStakingAminoConverters,
   createVestingAminoConverters,
 } from "./modules";
+import { makeAuthInfoBytesForMultisig } from "./multisignature";
 import { DeliverTxResponse, StargateClient, StargateClientOptions } from "./stargateclient";
 
 export const defaultRegistryTypes: ReadonlyArray<[string, GeneratedType]> = [
@@ -389,6 +395,51 @@ export class SigningStargateClient extends StargateClient {
     return isOfflineDirectSigner(this.signer)
       ? this.signDirect(signerAddress, messages, fee, memo, signerData)
       : this.signAmino(signerAddress, messages, fee, memo, signerData);
+  }
+
+  public async signDirectForMultisig(
+    signerAddress: string,
+    messages: readonly EncodeObject[],
+    chainId: string,
+    multisigPubkey: MultisigThresholdPubkey,
+    multisigSequence: number,
+    multisigAccountNumber: number,
+    multisigSigners: boolean[],
+    fee: StdFee,
+    memo: string,
+  ): Promise<TxRaw> {
+    assert(isOfflineDirectSigner(this.signer));
+    const accountFromSigner = (await this.signer.getAccounts()).find(
+      (account) => account.address === signerAddress,
+    );
+    if (!accountFromSigner) {
+      throw new Error("Failed to retrieve account from signer");
+    }
+    // const pubkey = encodePubkey(encodeSecp256k1Pubkey(accountFromSigner.pubkey));
+    const txBodyEncodeObject: TxBodyEncodeObject = {
+      typeUrl: "/cosmos.tx.v1beta1.TxBody",
+      value: {
+        messages: messages,
+        memo: memo,
+      },
+    };
+    const txBodyBytes = this.registry.encode(txBodyEncodeObject);
+    // Make list of sign modes. One entry per signature.
+    const signModes = multisigSigners.filter((signed) => signed).map((_) => "direct" as const);
+    const authInfoBytes = makeAuthInfoBytesForMultisig(
+      multisigPubkey,
+      multisigSequence,
+      fee,
+      multisigSigners,
+      signModes,
+    );
+    const signDoc = makeSignDoc(txBodyBytes, authInfoBytes, chainId, multisigAccountNumber);
+    const { signature, signed } = await this.signer.signDirect(signerAddress, signDoc);
+    return TxRaw.fromPartial({
+      bodyBytes: signed.bodyBytes,
+      authInfoBytes: signed.authInfoBytes,
+      signatures: [fromBase64(signature.signature)],
+    });
   }
 
   private async signAmino(

@@ -22,12 +22,49 @@ export function makeCompactBitArray(bits: readonly boolean[]): CompactBitArray {
   return CompactBitArray.fromPartial({ elems: bytes, extraBitsStored: extraBits });
 }
 
+export function makeAuthInfoBytesForMultisig(
+  multisigPubkey: MultisigThresholdPubkey,
+  sequence: number,
+  fee: StdFee,
+  signers: boolean[],
+  signModes: Array<"amino_json" | "direct">,
+): Uint8Array {
+  const signerInfo: SignerInfo = {
+    publicKey: encodePubkey(multisigPubkey),
+    modeInfo: {
+      multi: {
+        bitarray: makeCompactBitArray(signers),
+        // This feels needs one entry per actual signature
+        modeInfos: signModes.map((signMode) => ({
+          // here we assume the signers themselves are no multisigs
+          single: {
+            mode: signMode === "direct" ? SignMode.SIGN_MODE_DIRECT : SignMode.SIGN_MODE_LEGACY_AMINO_JSON,
+          },
+        })),
+      },
+    },
+    sequence: Long.fromNumber(sequence),
+  };
+
+  const authInfo = AuthInfo.fromPartial({
+    signerInfos: [signerInfo],
+    fee: {
+      amount: [...fee.amount],
+      gasLimit: Long.fromString(fee.gas),
+    },
+  });
+
+  return AuthInfo.encode(authInfo).finish();
+}
+
 /**
  * Creates a signed transaction from signer info, transaction body and signatures.
  * The result can be broadcasted after serialization.
  *
  * Consider using `makeMultisignedTxBytes` instead if you want to broadcast the
  * transaction immediately.
+ *
+ * @param signMode is the sign mode used by all signers. Mixed signing mode is not yet supported.
  */
 export function makeMultisignedTx(
   multisigPubkey: MultisigThresholdPubkey,
@@ -35,6 +72,7 @@ export function makeMultisignedTx(
   fee: StdFee,
   bodyBytes: Uint8Array,
   signatures: Map<string, Uint8Array>,
+  signMode: "amino_json" | "direct" = "amino_json",
 ): TxRaw {
   const addresses = Array.from(signatures.keys());
   const prefix = fromBech32(addresses[0]).prefix;
@@ -50,26 +88,13 @@ export function makeMultisignedTx(
     }
   }
 
-  const signerInfo: SignerInfo = {
-    publicKey: encodePubkey(multisigPubkey),
-    modeInfo: {
-      multi: {
-        bitarray: makeCompactBitArray(signers),
-        modeInfos: signaturesList.map((_) => ({ single: { mode: SignMode.SIGN_MODE_LEGACY_AMINO_JSON } })),
-      },
-    },
-    sequence: Long.fromNumber(sequence),
-  };
-
-  const authInfo = AuthInfo.fromPartial({
-    signerInfos: [signerInfo],
-    fee: {
-      amount: [...fee.amount],
-      gasLimit: Long.fromString(fee.gas),
-    },
-  });
-
-  const authInfoBytes = AuthInfo.encode(authInfo).finish();
+  const authInfoBytes = makeAuthInfoBytesForMultisig(
+    multisigPubkey,
+    sequence,
+    fee,
+    signers,
+    signaturesList.map((_sig) => signMode),
+  );
   const signedTx = TxRaw.fromPartial({
     bodyBytes: bodyBytes,
     authInfoBytes: authInfoBytes,
@@ -90,7 +115,8 @@ export function makeMultisignedTxBytes(
   fee: StdFee,
   bodyBytes: Uint8Array,
   signatures: Map<string, Uint8Array>,
+  signMode: "amino_json" | "direct" = "amino_json",
 ): Uint8Array {
-  const signedTx = makeMultisignedTx(multisigPubkey, sequence, fee, bodyBytes, signatures);
+  const signedTx = makeMultisignedTx(multisigPubkey, sequence, fee, bodyBytes, signatures, signMode);
   return Uint8Array.from(TxRaw.encode(signedTx).finish());
 }
