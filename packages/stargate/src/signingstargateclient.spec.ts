@@ -8,7 +8,7 @@ import {
   makeCosmoshubPath,
   Registry,
 } from "@cosmjs/proto-signing";
-import { Tendermint34Client } from "@cosmjs/tendermint-rpc";
+import { connectComet } from "@cosmjs/tendermint-rpc";
 import { assert, sleep } from "@cosmjs/utils";
 import { DeepPartial } from "cosmjs-types";
 import { BinaryWriter } from "cosmjs-types/binary";
@@ -185,7 +185,7 @@ describe("SigningStargateClient", () => {
         defaultSigningClientOptions,
       );
 
-      const cometClient = await Tendermint34Client.connect(simapp.tendermintUrl);
+      const cometClient = await connectComet(simapp.tendermintUrl);
       const queryClient = QueryClient.withExtensions(cometClient, setupFeegrantExtension);
       let allowanceExists: boolean;
       try {
