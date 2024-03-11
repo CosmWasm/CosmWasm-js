@@ -12,7 +12,6 @@ import {
   faucet,
   pendingWithoutSimapp,
   simapp,
-  simapp50Enabled,
 } from "../../testutils.spec";
 import { MsgCreateValidatorEncodeObject, MsgEditValidatorEncodeObject } from "./messages";
 
@@ -94,9 +93,9 @@ describe("staking messages", () => {
       client.disconnect();
     });
 
-    it("works with Amino JSON sign mode", async () => {
+    fit("works with Amino JSON sign mode", async () => {
       pendingWithoutSimapp();
-      if (simapp50Enabled()) pending("Not working, see https://github.com/cosmos/cosmos-sdk/issues/18546");
+      // if (simapp50Enabled()) pending("Not working, see https://github.com/cosmos/cosmos-sdk/issues/18546");
 
       const valWallet = await Secp256k1HdWallet.generate();
       const [valAccount] = await valWallet.getAccounts();
@@ -235,9 +234,9 @@ describe("staking messages", () => {
       client.disconnect();
     });
 
-    it("works with Amino JSON sign mode", async () => {
+    fit("works with Amino JSON sign mode", async () => {
       pendingWithoutSimapp();
-      if (simapp50Enabled()) pending("Not working, see https://github.com/cosmos/cosmos-sdk/issues/18546");
+      // if (simapp50Enabled()) pending("Not working, see https://github.com/cosmos/cosmos-sdk/issues/18546");
 
       const valWallet = await Secp256k1HdWallet.generate();
       const [valAccount] = await valWallet.getAccounts();

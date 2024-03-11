@@ -98,5 +98,7 @@ export function escapeCharacters(input: string): string {
 
 export function serializeSignDoc(signDoc: StdSignDoc): Uint8Array {
   const serialized = escapeCharacters(sortedJsonStringify(signDoc));
+  // eslint-disable-next-line no-console
+  console.log("Sign doc serialized:", serialized);
   return toUtf8(serialized);
 }
