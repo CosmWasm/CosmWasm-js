@@ -60,6 +60,8 @@ export class SocketWrapper {
     this.connected = new Promise((resolve, reject) => {
       this.connectedResolver = resolve;
       this.connectedRejecter = reject;
+    }).catch((e) => {
+       console.log("Caught Error: SocketWrapper.connected rejected.",e)
     });
 
     this.url = url;
