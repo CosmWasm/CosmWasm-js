@@ -153,17 +153,35 @@ export class Decimal {
     }
   }
 
-  public toString(): string {
+  /**
+   * Returns a formatted string representation of the decimal, e.g. "123.45".
+   *
+   * This can be called without arguments or or with arguments:
+   *
+   * ```
+   * const a = Decimal.fromUserInput("4444.1", 2);
+   * a.toString() // 4444.1
+   * a.toString(",", "'") // 4'444,1
+   * ```
+   *
+   * @param decimalSeparator The decimal separator. Defaults to ".".
+   * @param thousandsSeparator  The thousands separator. Defaults undefined (no separator).
+   */
+  public toString(decimalSeparator = ".", thousandsSeparator?: string): string {
     const factor = new BN(10).pow(new BN(this.data.fractionalDigits));
     const whole = this.data.atomics.div(factor);
     const fractional = this.data.atomics.mod(factor);
 
+    const wholeFormatted =
+      typeof thousandsSeparator === "string"
+        ? whole.toString().replace(/\B(?=(\d{3})+(?!\d))/g, thousandsSeparator) // See https://stackoverflow.com/a/2901298/2013738
+        : whole.toString();
     if (fractional.isZero()) {
-      return whole.toString();
+      return wholeFormatted;
     } else {
       const fullFractionalPart = fractional.toString().padStart(this.data.fractionalDigits, "0");
       const trimmedFractionalPart = fullFractionalPart.replace(/0+$/, "");
-      return `${whole.toString()}.${trimmedFractionalPart}`;
+      return `${wholeFormatted}${decimalSeparator}${trimmedFractionalPart}`;
     }
   }
 

@@ -237,6 +237,25 @@ describe("Decimal", () => {
       expect(Decimal.fromUserInput("44.000", 2).toString()).toEqual("44");
     });
 
+    it("trims leading zeros", () => {
+      expect(Decimal.fromAtomics("3", 0).toString()).toEqual("3");
+      expect(Decimal.fromAtomics("03", 0).toString()).toEqual("3");
+      expect(Decimal.fromAtomics("003", 0).toString()).toEqual("3");
+    });
+
+    it("prints large numbers as plain integers", () => {
+      expect(Decimal.fromUserInput("4", 0).toString()).toEqual("4");
+      expect(Decimal.fromUserInput("43", 0).toString()).toEqual("43");
+      expect(Decimal.fromUserInput("432", 0).toString()).toEqual("432");
+      expect(Decimal.fromUserInput("4321", 0).toString()).toEqual("4321");
+      expect(Decimal.fromUserInput("43219", 0).toString()).toEqual("43219");
+      expect(Decimal.fromUserInput("432198", 0).toString()).toEqual("432198");
+      expect(Decimal.fromUserInput("4321987", 0).toString()).toEqual("4321987");
+      expect(Decimal.fromUserInput("43219876", 0).toString()).toEqual("43219876");
+      expect(Decimal.fromUserInput("432198765", 0).toString()).toEqual("432198765");
+      expect(Decimal.fromUserInput("4321987654", 0).toString()).toEqual("4321987654");
+    });
+
     it("only shows significant digits", () => {
       expect(Decimal.fromUserInput("44.1", 2).toString()).toEqual("44.1");
       expect(Decimal.fromUserInput("44.10", 2).toString()).toEqual("44.1");
@@ -248,6 +267,37 @@ describe("Decimal", () => {
       expect(Decimal.fromAtomics("3", 1).toString()).toEqual("0.3");
       expect(Decimal.fromAtomics("3", 2).toString()).toEqual("0.03");
       expect(Decimal.fromAtomics("3", 3).toString()).toEqual("0.003");
+    });
+
+    it("works with undefined throusands separator", () => {
+      expect(Decimal.fromUserInput("444.1", 2).toString(".")).toEqual("444.1");
+      expect(Decimal.fromUserInput("4444.1", 2).toString(".")).toEqual("4444.1");
+
+      expect(Decimal.fromUserInput("444.1", 2).toString(",")).toEqual("444,1");
+      expect(Decimal.fromUserInput("4444.1", 2).toString(",")).toEqual("4444,1");
+    });
+
+    it("works with throusands separator", () => {
+      // US
+      expect(Decimal.fromUserInput("444.1", 2).toString(".", ",")).toEqual("444.1");
+      expect(Decimal.fromUserInput("4444.1", 2).toString(".", ",")).toEqual("4,444.1");
+      expect(Decimal.fromUserInput("55554444.1", 2).toString(".", ",")).toEqual("55,554,444.1");
+      expect(Decimal.fromUserInput("655554444.1", 2).toString(".", ",")).toEqual("655,554,444.1");
+      expect(Decimal.fromUserInput("655554444.0", 2).toString(".", ",")).toEqual("655,554,444");
+
+      // Spaces
+      expect(Decimal.fromUserInput("444.1", 2).toString(".", " ")).toEqual("444.1");
+      expect(Decimal.fromUserInput("4444.1", 2).toString(".", " ")).toEqual("4 444.1");
+      expect(Decimal.fromUserInput("55554444.1", 2).toString(".", " ")).toEqual("55 554 444.1");
+      expect(Decimal.fromUserInput("655554444.1", 2).toString(".", " ")).toEqual("655 554 444.1");
+      expect(Decimal.fromUserInput("655554444.0", 2).toString(".", " ")).toEqual("655 554 444");
+
+      // Source code
+      expect(Decimal.fromUserInput("444.1", 2).toString(".", "_")).toEqual("444.1");
+      expect(Decimal.fromUserInput("4444.1", 2).toString(".", "_")).toEqual("4_444.1");
+      expect(Decimal.fromUserInput("55554444.1", 2).toString(".", "_")).toEqual("55_554_444.1");
+      expect(Decimal.fromUserInput("655554444.1", 2).toString(".", "_")).toEqual("655_554_444.1");
+      expect(Decimal.fromUserInput("655554444.0", 2).toString(".", "_")).toEqual("655_554_444");
     });
   });
 
