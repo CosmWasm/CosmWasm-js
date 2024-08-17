@@ -40,9 +40,14 @@ export async function http(
   headers: Record<string, string> | undefined,
   request?: any,
 ): Promise<any> {
+  const timeout = Number(
+    //@ts-ignore
+    process.env.HTTP_TIMEOUT || 30000,
+  );
   if (typeof fetch === "function" && !isExperimental(fetch)) {
     const settings = {
       method: method,
+      signal: timeout,
       body: request ? JSON.stringify(request) : undefined,
       headers: {
         // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -55,7 +60,7 @@ export async function http(
       .then((res: any) => res.json());
   } else {
     return axios
-      .request({ url: url, method: method, data: request, headers: headers })
+      .request({ url: url, method: method, data: request, headers: headers, timeout })
       .then((res) => res.data);
   }
 }
