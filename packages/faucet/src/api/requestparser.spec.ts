@@ -3,7 +3,11 @@ import { RequestParser } from "./requestparser";
 describe("RequestParser", () => {
   it("can process valid credit request with denom", () => {
     const body = { address: "abc", denom: "utkn" };
-    expect(RequestParser.parseCreditBody(body)).toEqual({ address: "abc", denom: "utkn" });
+    expect(RequestParser.parseCreditBody(body)).toEqual({
+      address: "abc",
+      denom: "utkn",
+      recaptcha: undefined,
+    });
   });
 
   it("throws helpful error message when ticker is found", () => {

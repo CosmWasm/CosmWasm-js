@@ -1,6 +1,8 @@
+import axios from "axios";
 import Koa from "koa";
 import cors = require("@koa/cors");
 import bodyParser from "koa-bodyparser";
+import qs from "node:querystring";
 
 import { isValidAddress } from "../addresses";
 import * as constants from "../constants";
@@ -12,6 +14,15 @@ import { RequestParser } from "./requestparser";
 export interface ChainConstants {
   readonly nodeUrl: string;
   readonly chainId: string;
+}
+
+interface RecaptchaResponse {
+  success: boolean;
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  challenge_ts?: string;
+  hostname?: string;
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  "error-codes"?: string[];
 }
 
 export class Webserver {
@@ -59,7 +70,7 @@ export class Webserver {
           // context.request.body is set by the bodyParser() plugin
           const requestBody = (context.request as any).body;
           const creditBody = RequestParser.parseCreditBody(requestBody);
-          const { address, denom } = creditBody;
+          const { address, denom, recaptcha } = creditBody;
 
           if (!isValidAddress(address, constants.addressPrefix)) {
             throw new HttpError(400, "Address is not in the expected format for this chain.");
@@ -80,6 +91,28 @@ export class Webserver {
           const matchingDenom = availableTokens.find((availableDenom) => availableDenom === denom);
           if (matchingDenom === undefined) {
             throw new HttpError(422, `Token is not available. Available tokens are: ${availableTokens}`);
+          }
+
+          // if enabled, require recaptcha validation
+          if (process.env.GOOGLE_RECAPTCHA_SECRET_KEY !== undefined) {
+            const response = await axios.post<RecaptchaResponse>(
+              "https://www.google.com/recaptcha/api/siteverify",
+              qs.stringify({
+                secret: process.env.GOOGLE_RECAPTCHA_SECRET_KEY,
+                response: recaptcha,
+              }),
+              {
+                headers: {
+                  "Content-Type": "application/x-www-form-urlencoded",
+                },
+              },
+            );
+
+            const verifyData = response.data;
+            if (!verifyData.success) {
+              console.error(`recaptcha validation FAILED ${JSON.stringify(verifyData, null, 4)}`);
+              throw new HttpError(423, `Recaptcha failed to verify`);
+            }
           }
 
           try {

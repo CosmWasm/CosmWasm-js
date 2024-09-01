@@ -7,6 +7,8 @@ export interface CreditRequestBodyData {
   readonly denom: string;
   /** The recipient address */
   readonly address: string;
+  /** The recaptcha v2 response */
+  readonly recaptcha: string | undefined;
 }
 
 export interface CreditRequestBodyDataWithTicker {
@@ -22,7 +24,7 @@ export class RequestParser {
       throw new HttpError(400, "Request body must be a dictionary.");
     }
 
-    const { address, denom, ticker } = body as any;
+    const { address, denom, ticker, recaptcha } = body as any;
 
     if (typeof ticker !== "undefined") {
       throw new HttpError(400, "The 'ticker' field was removed in CosmJS 0.23. Please use 'denom' instead.");
@@ -47,6 +49,7 @@ export class RequestParser {
     return {
       address: address,
       denom: denom,
+      recaptcha: recaptcha,
     };
   }
 }

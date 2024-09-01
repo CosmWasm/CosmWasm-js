@@ -12,7 +12,7 @@ module.exports = [
       path: distdir,
       filename: "cli.js",
       library: {
-        type: "commonjs",
+        type: "commonjs2",
       },
     },
     plugins: [],

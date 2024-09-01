@@ -16,6 +16,7 @@ WORKDIR /app
 RUN apk add --update --no-cache alpine-sdk linux-headers build-base gcc libusb-dev python3 py3-pip eudev-dev
 RUN ln -sf python3 /usr/bin/python
 
+ENV YARN_CHECKSUM_BEHAVIOR=reset
 RUN yarn install && yarn run build
 RUN (cd packages/faucet && SKIP_BUILD=1 yarn pack-node)
 
