@@ -581,7 +581,7 @@ __metadata:
     "@cosmjs/stargate": "workspace:^"
     "@cosmjs/utils": "workspace:^"
     "@istanbuljs/nyc-config-typescript": ^1.0.1
-    "@koa/cors": ^3.3
+    "@koa/cors": ^5.0
     "@types/eslint-plugin-prettier": ^3
     "@types/jasmine": ^4
     "@types/koa": ^2.13
@@ -1163,12 +1163,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@koa/cors@npm:^3.3":
-  version: 3.3.0
-  resolution: "@koa/cors@npm:3.3.0"
+"@koa/cors@npm:^5.0":
+  version: 5.0.0
+  resolution: "@koa/cors@npm:5.0.0"
   dependencies:
     vary: ^1.1.2
-  checksum: bb49c680e0d151aec1b19c24c14d61b65f430eb379e63d83789602cc7d8e52706ebcd74867cdb60b1d50ddb6f3d59be04e1c46328fae5721aeaf50e0d4fc2d28
+  checksum: 050701fb57dede2fefe0217459782bab7c9488fd07ff1f87fff680005cab43e03b7509e6015ea68082aadb1b31fe3eea7858ebdc93a2cf6f26d36d071190d50c
   languageName: node
   linkType: hard
 
