@@ -6,6 +6,10 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- @cosmjs/cosmwasm-stargate: Added the ability to specify a custom account parser for `CosmWasmClient`
+
 ## [0.32.4] - 2024-06-26
 
 ### Fixed

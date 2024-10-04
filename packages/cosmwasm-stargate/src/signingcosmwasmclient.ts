@@ -50,7 +50,7 @@ import {
 import { AccessConfig } from "cosmjs-types/cosmwasm/wasm/v1/types";
 import pako from "pako";
 
-import { CosmWasmClient } from "./cosmwasmclient";
+import { CosmWasmClient, CosmWasmClientOptions } from "./cosmwasmclient";
 import {
   createWasmAminoConverters,
   JsonObject,
@@ -186,7 +186,7 @@ function createDeliverTxResponseErrorMessage(result: DeliverTxResponse): string 
   return `Error when broadcasting tx ${result.transactionHash} at height ${result.height}. Code: ${result.code}; Raw log: ${result.rawLog}`;
 }
 
-export interface SigningCosmWasmClientOptions {
+export interface SigningCosmWasmClientOptions extends CosmWasmClientOptions {
   readonly registry?: Registry;
   readonly aminoTypes?: AminoTypes;
   readonly broadcastTimeoutMs?: number;
@@ -254,7 +254,7 @@ export class SigningCosmWasmClient extends CosmWasmClient {
     signer: OfflineSigner,
     options: SigningCosmWasmClientOptions,
   ) {
-    super(cometClient);
+    super(cometClient, options);
     const {
       registry = new Registry([...defaultStargateTypes, ...wasmTypes]),
       aminoTypes = new AminoTypes({

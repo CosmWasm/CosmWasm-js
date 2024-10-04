@@ -4,6 +4,7 @@ import { Uint53 } from "@cosmjs/math";
 import {
   Account,
   accountFromAny,
+  AccountParser,
   AuthExtension,
   BankExtension,
   Block,
@@ -82,6 +83,10 @@ export interface PrivateCosmWasmClient {
     | undefined;
 }
 
+export interface CosmWasmClientOptions {
+  readonly accountParser?: AccountParser;
+}
+
 export class CosmWasmClient {
   private readonly cometClient: CometClient | undefined;
   private readonly queryClient:
@@ -89,6 +94,7 @@ export class CosmWasmClient {
     | undefined;
   private readonly codesCache = new Map<number, CodeDetails>();
   private chainId: string | undefined;
+  private readonly accountParser: AccountParser;
 
   /**
    * Creates an instance by connecting to the given CometBFT RPC endpoint.
@@ -96,20 +102,20 @@ export class CosmWasmClient {
    * This uses auto-detection to decide between a CometBFT 0.38, Tendermint 0.37 and 0.34 client.
    * To set the Comet client explicitly, use `create`.
    */
-  public static async connect(endpoint: string | HttpEndpoint): Promise<CosmWasmClient> {
+  public static async connect(endpoint: string | HttpEndpoint, options: CosmWasmClientOptions = {}): Promise<CosmWasmClient> {
     const cometClient = await connectComet(endpoint);
-    return CosmWasmClient.create(cometClient);
+    return CosmWasmClient.create(cometClient, options);
   }
 
   /**
    * Creates an instance from a manually created Comet client.
    * Use this to use `Comet38Client` or `Tendermint37Client` instead of `Tendermint34Client`.
    */
-  public static async create(cometClient: CometClient): Promise<CosmWasmClient> {
-    return new CosmWasmClient(cometClient);
+  public static async create(cometClient: CometClient, options: CosmWasmClientOptions = {}): Promise<CosmWasmClient> {
+    return new CosmWasmClient(cometClient, options);
   }
 
-  protected constructor(cometClient: CometClient | undefined) {
+  protected constructor(cometClient: CometClient | undefined, options: CosmWasmClientOptions = {}) {
     if (cometClient) {
       this.cometClient = cometClient;
       this.queryClient = QueryClient.withExtensions(
@@ -120,6 +126,8 @@ export class CosmWasmClient {
         setupTxExtension,
       );
     }
+    const { accountParser = accountFromAny } = options;
+    this.accountParser = accountParser;
   }
 
   protected getCometClient(): CometClient | undefined {
@@ -165,7 +173,7 @@ export class CosmWasmClient {
   public async getAccount(searchAddress: string): Promise<Account | null> {
     try {
       const account = await this.forceGetQueryClient().auth.account(searchAddress);
-      return account ? accountFromAny(account) : null;
+      return account ? this.accountParser(account) : null;
     } catch (error: any) {
       if (/rpc error: code = NotFound/i.test(error.toString())) {
         return null;
