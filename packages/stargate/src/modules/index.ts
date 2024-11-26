@@ -1,3 +1,13 @@
+import { GeneratedType } from "@cosmjs/proto-signing";
+
+import { AminoConverters } from "../aminotypes";
+import { createStakingAminoConverters } from "./staking/aminomessages";
+import { stakingTypes } from "./staking/messages";
+import { setupStakingExtension } from "./staking/queries";
+import { setupTxExtension } from "./tx/queries";
+import { createVestingAminoConverters } from "./vesting/aminomessages";
+import { vestingTypes } from "./vesting/messages";
+
 export { AuthExtension, setupAuthExtension } from "./auth/queries";
 export { createAuthzAminoConverters } from "./authz/aminomessages";
 export { authzTypes } from "./authz/messages";
@@ -108,3 +118,27 @@ export {
   isAminoMsgCreateVestingAccount,
 } from "./vesting/aminomessages";
 export { vestingTypes } from "./vesting/messages";
+
+interface Module<CreateAminoConverters extends ((...args: any[]) => AminoConverters) | null, SetupQuery> {
+  readonly messageTypes: ReadonlyArray<[string, GeneratedType]> | null;
+  readonly createAminoConverters: CreateAminoConverters;
+  readonly setupQueryExtension: SetupQuery;
+}
+
+export const vesting: Module<typeof createVestingAminoConverters, null> = {
+  messageTypes: vestingTypes,
+  createAminoConverters: createVestingAminoConverters,
+  setupQueryExtension: null,
+};
+
+export const staking: Module<typeof createStakingAminoConverters, typeof setupStakingExtension> = {
+  messageTypes: stakingTypes,
+  createAminoConverters: createStakingAminoConverters,
+  setupQueryExtension: setupStakingExtension,
+};
+
+export const tx: Module<null, typeof setupTxExtension> = {
+  messageTypes: null,
+  createAminoConverters: null,
+  setupQueryExtension: setupTxExtension,
+};
