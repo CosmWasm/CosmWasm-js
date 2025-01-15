@@ -287,8 +287,7 @@ export function decodeValidatorUpdate(data: RpcValidatorUpdate): responses.Valid
 interface RpcBlockResultsResponse {
   readonly height: string;
   readonly txs_results: readonly RpcTxData[] | null;
-  readonly begin_block_events: readonly RpcEvent[] | null;
-  readonly end_block_events: readonly RpcEvent[] | null;
+  readonly finalize_block_events: readonly RpcEvent[] | null;
   readonly validator_updates: readonly RpcValidatorUpdate[] | null;
   readonly consensus_param_updates: RpcConsensusParams | null;
 }
@@ -299,8 +298,7 @@ function decodeBlockResults(data: RpcBlockResultsResponse): responses.BlockResul
     results: (data.txs_results || []).map(decodeTxData),
     validatorUpdates: (data.validator_updates || []).map(decodeValidatorUpdate),
     consensusUpdates: may(decodeConsensusParams, data.consensus_param_updates),
-    beginBlockEvents: decodeEvents(data.begin_block_events || []),
-    endBlockEvents: decodeEvents(data.end_block_events || []),
+    finalizeBlockEvents: decodeEvents(data.finalize_block_events || [])
   };
 }
 

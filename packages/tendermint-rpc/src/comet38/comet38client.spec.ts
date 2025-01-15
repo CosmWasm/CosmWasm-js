@@ -261,8 +261,7 @@ function defaultTestSuite(rpcFactory: () => RpcClient, expected: ExpectedValues)
       const results = await client.blockResults(height);
       expect(results.height).toEqual(height);
       expect(results.results).toEqual([]);
-      expect(results.beginBlockEvents).toEqual([]);
-      expect(results.endBlockEvents).toEqual([]);
+      expect(results.finalizeBlockEvents).toEqual([]);
 
       client.disconnect();
     });

@@ -60,8 +60,7 @@ export interface BlockResultsResponse {
   readonly results: readonly TxData[];
   readonly validatorUpdates: readonly ValidatorUpdate[];
   readonly consensusUpdates?: ConsensusParams;
-  readonly beginBlockEvents: readonly Event[];
-  readonly endBlockEvents: readonly Event[];
+  readonly finalizeBlockEvents: readonly Event[];
 }
 
 export interface BlockSearchResponse {
