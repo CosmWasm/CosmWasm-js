@@ -221,10 +221,7 @@ export class StargateClient {
    * Creates an instance from a manually created Comet client.
    * Use this to use `Comet38Client` or `Tendermint37Client` instead of `Tendermint34Client`.
    */
-  public static async create(
-    cometClient: CometClient,
-    options: StargateClientOptions = {},
-  ): Promise<StargateClient> {
+  public static create(cometClient: CometClient, options: StargateClientOptions = {}): StargateClient {
     return new StargateClient(cometClient, options);
   }
 

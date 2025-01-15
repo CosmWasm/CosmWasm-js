@@ -47,7 +47,7 @@ export class Tendermint37Client {
   /**
    * Creates a new Tendermint client given an RPC client.
    */
-  public static async create(rpcClient: RpcClient): Promise<Tendermint37Client> {
+  public static create(rpcClient: RpcClient): Tendermint37Client {
     return new Tendermint37Client(rpcClient);
   }
 
