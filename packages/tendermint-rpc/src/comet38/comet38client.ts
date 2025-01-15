@@ -39,7 +39,11 @@ export class Comet38Client {
     // (our CI) when skipping the status call before doing other queries. Sleeping a little
     // while did not help. Thus we query the version as a way to say "hi" to the backend,
     // even in cases where we don't use the result.
-    const _version = await this.detectVersion(rpcClient);
+    // However we can run this code only inside our CI, so we don't have to run this code inside the prod build,
+    // this avoids an unnecessary request to the RPC nodes
+    if (process.env.TENDERMINT_ENABLED) {
+      const _version = await this.detectVersion(rpcClient);
+    }
 
     return Comet38Client.create(rpcClient);
   }
