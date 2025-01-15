@@ -40,49 +40,103 @@ function accountFromBaseAccount(input: BaseAccount): Account {
  */
 export type AccountParser = (any: Any) => Account;
 
+export type AccountParserRegistry = Map<Any["typeUrl"], AccountParser>;
+
+/**
+ * AccountParserManager is a class responsible for managing a registry of account parsers.
+ * It allows registering new parsers and parsing account data using registered parsers.
+ * Once initialized, `AccountParserManager.parseAccount` can be provided for the `accountParser`
+ * option when initializing the StargateSigningCleint.
+ */
+export class AccountParserManager {
+  private readonly registry = new Map<Any["typeUrl"], AccountParser>();
+
+  public constructor(initialRegistry: AccountParserRegistry = new Map()) {
+    this.registry = initialRegistry;
+  }
+
+  /** Registers a new account parser for a specific typeUrl. */
+  public register(typeUrl: Any["typeUrl"], parser: AccountParser): void {
+    this.registry.set(typeUrl, parser);
+  }
+
+  /**
+   * Parses an account from an `Any` encoded format using a registered parser based on the typeUrl.
+   * @throws Will throw an error if no parser is registered for the account's typeUrl.
+   */
+  public parseAccount(input: Any): Account {
+    const parser = this.registry.get(input.typeUrl);
+    if (!parser) {
+      throw new Error(`Unsupported type: '${input.typeUrl}'`);
+    }
+    return parser(input);
+  }
+}
+
+/**
+ * Creates and returns a default registry of account parsers.
+ * Each parser is a function responsible for converting an `Any` encoded account
+ * from the chain into a common `Account` format. The registry maps `typeUrl`
+ * strings to corresponding `AccountParser` functions.
+ */
+export function createAccountParserRegistry(): AccountParserRegistry {
+  const parseBaseAccount: AccountParser = ({ value }: Any): Account => {
+    return accountFromBaseAccount(BaseAccount.decode(value));
+  };
+
+  const parseModuleAccount: AccountParser = ({ value }: Any): Account => {
+    const baseAccount = ModuleAccount.decode(value).baseAccount;
+    assert(baseAccount);
+    return accountFromBaseAccount(baseAccount);
+  };
+
+  const parseBaseVestingAccount: AccountParser = ({ value }: Any): Account => {
+    const baseAccount = BaseVestingAccount.decode(value)?.baseAccount;
+    assert(baseAccount);
+    return accountFromBaseAccount(baseAccount);
+  };
+
+  const parseContinuousVestingAccount: AccountParser = ({ value }: Any): Account => {
+    const baseAccount = ContinuousVestingAccount.decode(value)?.baseVestingAccount?.baseAccount;
+    assert(baseAccount);
+    return accountFromBaseAccount(baseAccount);
+  };
+
+  const parseDelayedVestingAccount: AccountParser = ({ value }: Any): Account => {
+    const baseAccount = DelayedVestingAccount.decode(value)?.baseVestingAccount?.baseAccount;
+    assert(baseAccount);
+    return accountFromBaseAccount(baseAccount);
+  };
+
+  const parsePeriodicVestingAccount: AccountParser = ({ value }: Any): Account => {
+    const baseAccount = PeriodicVestingAccount.decode(value)?.baseVestingAccount?.baseAccount;
+    assert(baseAccount);
+    return accountFromBaseAccount(baseAccount);
+  };
+
+  return new Map<Any["typeUrl"], AccountParser>([
+    ["/cosmos.auth.v1beta1.BaseAccount", parseBaseAccount],
+    ["/cosmos.auth.v1beta1.ModuleAccount", parseModuleAccount],
+    ["/cosmos.vesting.v1beta1.BaseVestingAccount", parseBaseVestingAccount],
+    ["/cosmos.vesting.v1beta1.ContinuousVestingAccount", parseContinuousVestingAccount],
+    ["/cosmos.vesting.v1beta1.DelayedVestingAccount", parseDelayedVestingAccount],
+    ["/cosmos.vesting.v1beta1.PeriodicVestingAccount", parsePeriodicVestingAccount],
+  ]);
+}
+
 /**
  * Basic implementation of AccountParser. This is supposed to support the most relevant
- * common Cosmos SDK account types. If you need support for exotic account types,
- * you'll need to write your own account decoder.
+ * common Cosmos SDK account types. If you need support for additional account types,
+ * you'll need to use `AccountParserManager` and `createAccountParserRegistry` directly.
+ *
+ * @example
+ * ```
+ * const myAccountParserManager = new AccountParserManager(createAccountParserRegistry());
+ * myAccountParserManager.register('/custom.type.v1.CustomAccount', customAccountParser);
+ * const account = customParserManager.parseAccount(someInput);
+ * ```
  */
 export function accountFromAny(input: Any): Account {
-  const { typeUrl, value } = input;
-
-  switch (typeUrl) {
-    // auth
-
-    case "/cosmos.auth.v1beta1.BaseAccount":
-      return accountFromBaseAccount(BaseAccount.decode(value));
-    case "/cosmos.auth.v1beta1.ModuleAccount": {
-      const baseAccount = ModuleAccount.decode(value).baseAccount;
-      assert(baseAccount);
-      return accountFromBaseAccount(baseAccount);
-    }
-
-    // vesting
-
-    case "/cosmos.vesting.v1beta1.BaseVestingAccount": {
-      const baseAccount = BaseVestingAccount.decode(value)?.baseAccount;
-      assert(baseAccount);
-      return accountFromBaseAccount(baseAccount);
-    }
-    case "/cosmos.vesting.v1beta1.ContinuousVestingAccount": {
-      const baseAccount = ContinuousVestingAccount.decode(value)?.baseVestingAccount?.baseAccount;
-      assert(baseAccount);
-      return accountFromBaseAccount(baseAccount);
-    }
-    case "/cosmos.vesting.v1beta1.DelayedVestingAccount": {
-      const baseAccount = DelayedVestingAccount.decode(value)?.baseVestingAccount?.baseAccount;
-      assert(baseAccount);
-      return accountFromBaseAccount(baseAccount);
-    }
-    case "/cosmos.vesting.v1beta1.PeriodicVestingAccount": {
-      const baseAccount = PeriodicVestingAccount.decode(value)?.baseVestingAccount?.baseAccount;
-      assert(baseAccount);
-      return accountFromBaseAccount(baseAccount);
-    }
-
-    default:
-      throw new Error(`Unsupported type: '${typeUrl}'`);
-  }
+  const accountParser = new AccountParserManager(createAccountParserRegistry());
+  return accountParser.parseAccount(input);
 }

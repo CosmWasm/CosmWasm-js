@@ -1,4 +1,11 @@
-export { Account, accountFromAny, AccountParser } from "./accounts";
+export {
+  Account,
+  accountFromAny,
+  AccountParser,
+  AccountParserManager,
+  AccountParserRegistry,
+  createAccountParserRegistry,
+} from "./accounts";
 export { AminoConverter, AminoConverters, AminoTypes } from "./aminotypes";
 export { Attribute, Event, fromTendermintEvent } from "./events";
 export { calculateFee, GasPrice } from "./fee";
