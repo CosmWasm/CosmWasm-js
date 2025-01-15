@@ -36,7 +36,7 @@
     "test-safari": "yarn pack-web && karma start --single-run --browsers Safari",
     "test": "yarn build-or-skip && yarn test-node",
     "coverage": "nyc --reporter=text --reporter=lcov yarn test --quiet",
-    "build": "rm -rf ./build && tsc",
+    "build": "rm -rf ./build && tsc && cp -R src/pkg2 build",
     "build-or-skip": "[ -n \"$SKIP_BUILD\" ] || yarn build",
     "pack-web": "yarn build-or-skip && webpack --mode development --config webpack.web.config.js"
   },

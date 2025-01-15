@@ -1,0 +1,12 @@
+[package]
+name = "argon2id"
+version = "0.1.0"
+edition = "2018"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+argon2 = { version = "0.3.2", default-features = false, features = ["alloc"] }
+wasm-bindgen = { version = "0.2.78" }

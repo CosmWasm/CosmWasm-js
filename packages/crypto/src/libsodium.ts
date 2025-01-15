@@ -9,6 +9,8 @@ import { isNonNullObject } from "@cosmjs/utils";
 // again: https://github.com/cosmos/cosmjs/issues/1031
 import sodium from "libsodium-wrappers-sumo";
 
+import argon2id from "./pkg2";
+
 export interface Argon2idOptions {
   /** Output length in bytes */
   readonly outputLength: number;
@@ -42,15 +44,21 @@ export class Argon2id {
     salt: Uint8Array,
     options: Argon2idOptions,
   ): Promise<Uint8Array> {
-    await sodium.ready;
-    return sodium.crypto_pwhash(
-      options.outputLength,
-      password,
-      salt, // libsodium only supports 16 byte salts and will throw when you don't respect that
-      options.opsLimit,
-      options.memLimitKib * 1024,
-      sodium.crypto_pwhash_ALG_ARGON2ID13,
-    );
+    // await sodium.ready;
+    // return sodium.crypto_pwhash(
+    //   options.outputLength,
+    //   password,
+    //   salt, // libsodium only supports 16 byte salts and will throw when you don't respect that
+    //   options.opsLimit,
+    //   options.memLimitKib * 1024,
+    //   sodium.crypto_pwhash_ALG_ARGON2ID13,
+    // );
+    if (salt.length !== 16) {
+      throw new Error(
+        "Invalid salt length. Only 16 bytes is supported for compatibility with previous libsodium-based implementation. Feel free to raise an issue if you need something else.",
+      );
+    }
+    return argon2id.hash(password, salt, options.outputLength, options.memLimitKib, options.opsLimit);
   }
 }
 
