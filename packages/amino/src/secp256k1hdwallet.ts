@@ -71,7 +71,7 @@ interface DerivationInfoJson {
   readonly prefix: string;
 }
 
-function isDerivationJson(thing: unknown): thing is DerivationInfoJson {
+export function isDerivationJson(thing: unknown): thing is DerivationInfoJson {
   if (!isNonNullObject(thing)) return false;
   if (typeof (thing as DerivationInfoJson).hdPath !== "string") return false;
   if (typeof (thing as DerivationInfoJson).prefix !== "string") return false;

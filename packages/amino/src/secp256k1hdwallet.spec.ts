@@ -3,7 +3,7 @@ import { Secp256k1, Secp256k1Signature, sha256 } from "@cosmjs/crypto";
 import { fromBase64, fromHex } from "@cosmjs/encoding";
 
 import { makeCosmoshubPath } from "./paths";
-import { extractKdfConfiguration, Secp256k1HdWallet } from "./secp256k1hdwallet";
+import { extractKdfConfiguration, isDerivationJson, Secp256k1HdWallet } from "./secp256k1hdwallet";
 import { serializeSignDoc, StdSignDoc } from "./signdoc";
 import { base64Matcher } from "./testutils.spec";
 import { executeKdf, KdfConfiguration } from "./wallet";
@@ -309,6 +309,48 @@ describe("Secp256k1HdWallet", () => {
         },
         data: jasmine.stringMatching(base64Matcher),
       });
+    });
+  });
+
+  describe("isDerivationJson function", () => {
+    it("returns true for valid DerivationInfoJson", () => {
+      const validInput: unknown = {
+        hdPath: "validHdPath",
+        prefix: "validPrefix",
+      };
+      expect(isDerivationJson(validInput)).toBe(true);
+    });
+
+    it("returns false for undefined input", () => {
+      expect(isDerivationJson(undefined)).toBe(false);
+    });
+
+    it("returns false for null input", () => {
+      expect(isDerivationJson(null)).toBe(false);
+    });
+
+    it("returns false for non-object input", () => {
+      expect(isDerivationJson(42)).toBe(false);
+    });
+
+    it("returns false for missing hdPath property", () => {
+      const missingHdPath: unknown = {};
+      expect(isDerivationJson(missingHdPath)).toBe(false);
+    });
+
+    it("returns false for missing prefix property", () => {
+      const missingPrefix: unknown = {
+        hdPath: "validHdPath",
+      };
+      expect(isDerivationJson(missingPrefix)).toBe(false);
+    });
+
+    it("returns false for incorrect hdPath type", () => {
+      const incorrectHdPathType: unknown = {
+        hdPath: 123,
+        prefix: "validPrefix",
+      };
+      expect(isDerivationJson(incorrectHdPathType)).toBe(false);
     });
   });
 });

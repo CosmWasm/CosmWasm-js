@@ -1,5 +1,6 @@
 import { Random } from "@cosmjs/crypto";
 import { fromBase64, fromBech32, fromHex } from "@cosmjs/encoding";
+import { TSError } from "ts-node";
 
 import {
   decodeAminoPubkey,
@@ -130,6 +131,17 @@ describe("encoding", () => {
       });
 
       expect(() => decodeAminoPubkey(fromHex("22C1F7E20705"))).toThrowError(/expecting 0x08 prefix/i);
+    });
+
+    it("throws error for invalid secp256k1 pubkey length", () => {
+      const data = new Uint8Array([0, 1, 2, 3, 4]);
+      try {
+        decodeAminoPubkey(data);
+      } catch (error) {
+        expect((error as TSError).message).toBe(
+          "Unsupported public key type. Amino data starts with: 0001020304",
+        );
+      }
     });
   });
 
