@@ -3,6 +3,7 @@ import { assert } from "@cosmjs/utils";
 import { Metadata } from "cosmjs-types/cosmos/bank/v1beta1/bank";
 import {
   QueryAllBalancesRequest,
+  QueryAllBalancesResponse,
   QueryClientImpl,
   QueryDenomsMetadataRequest,
   QueryTotalSupplyResponse,
@@ -36,10 +37,22 @@ export function setupBankExtension(base: QueryClient): BankExtension {
         return balance;
       },
       allBalances: async (address: string) => {
-        const { balances } = await queryService.AllBalances(
-          QueryAllBalancesRequest.fromPartial({ address: address }),
-        );
-        return balances;
+        const allBalances = [];
+        let paginationKey: Uint8Array | undefined = undefined;
+        do {
+          const { balances, pagination }: QueryAllBalancesResponse = await queryService.AllBalances(
+            QueryAllBalancesRequest.fromPartial({
+              address: address,
+              pagination: createPagination(paginationKey),
+            }),
+          );
+
+          const loadedBalances = balances || [];
+          allBalances.push(...loadedBalances);
+          paginationKey = pagination?.nextKey;
+        } while (paginationKey !== undefined && paginationKey.length !== 0);
+
+        return allBalances;
       },
       totalSupply: async (paginationKey?: Uint8Array) => {
         const response = await queryService.TotalSupply({
