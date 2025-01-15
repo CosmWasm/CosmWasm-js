@@ -713,6 +713,7 @@ interface RpcTxResponse {
 
 function decodeTxResponse(data: RpcTxResponse): responses.TxResponse {
   return {
+    ...data,
     tx: fromBase64(assertNotEmpty(data.tx)),
     result: decodeTxData(assertObject(data.tx_result)),
     height: apiToSmallInt(assertNotEmpty(data.height)),

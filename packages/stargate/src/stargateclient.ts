@@ -503,6 +503,7 @@ export class StargateClient {
     return results.txs.map((tx): IndexedTx => {
       const txMsgData = TxMsgData.decode(tx.result.data ?? new Uint8Array());
       return {
+        ...tx,
         height: tx.height,
         txIndex: tx.index,
         hash: toHex(tx.hash).toUpperCase(),
