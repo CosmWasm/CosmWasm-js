@@ -35,12 +35,16 @@ export function setupAuthzExtension(base: QueryClient): AuthzExtension {
   return {
     authz: {
       grants: async (granter: string, grantee: string, msgTypeUrl: string, paginationKey?: Uint8Array) => {
-        return await queryService.Grants({
+        // TODO: remove this proof of concept
+        rpc.setMetadata(new Map([["x-cosmos-block-height", "123"]]));
+        const resp = await queryService.Grants({
           granter: granter,
           grantee: grantee,
           msgTypeUrl: msgTypeUrl,
           pagination: createPagination(paginationKey),
         });
+        rpc.clearMetadata();
+        return resp;
       },
       granteeGrants: async (grantee: string, paginationKey?: Uint8Array) => {
         return await queryService.GranteeGrants({

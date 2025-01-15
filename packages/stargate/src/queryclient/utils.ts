@@ -1,5 +1,5 @@
 import { fromAscii, fromBech32 } from "@cosmjs/encoding";
-import { Decimal, Uint64 } from "@cosmjs/math";
+import { Decimal, Uint53, Uint64 } from "@cosmjs/math";
 import { PageRequest } from "cosmjs-types/cosmos/base/query/v1beta1/pagination";
 
 import { QueryClient } from "./queryclient";
@@ -24,15 +24,46 @@ export function createPagination(paginationKey?: Uint8Array): PageRequest {
   return paginationKey ? PageRequest.fromPartial({ key: paginationKey }) : PageRequest.fromPartial({});
 }
 
+/**
+ * This interface is more or less a copy of
+ * https://github.com/confio/cosmjs-types/blob/v0.6.1/src/helpers.ts#L180-L182.
+ *
+ * It needs to be compatible to the `Rpc` client expected by the query services
+ * auto-generated in cosmjs-types.
+ */
 export interface ProtobufRpcClient {
+  // See https://github.com/grpc/grpc-go/blob/master/Documentation/grpc-metadata.md.
+  // To keep things simple, we only support one items per key here.
+  setMetadata(md: Map<string, string>): void;
+  // A version of setMetadata that clears all elements
+  clearMetadata(): void;
+  // Returns a copy of the current metadata
+  getMetadata(): Map<string, string>;
   request(service: string, method: string, data: Uint8Array): Promise<Uint8Array>;
 }
 
 export function createProtobufRpcClient(base: QueryClient): ProtobufRpcClient {
+  const metadata = new Map<string, string>();
   return {
+    setMetadata: (md: Map<string, string>) => {
+      // Override metadata without changing the reference
+      metadata.clear();
+      for (const [k, v] of md.entries()) {
+        metadata.set(k, v);
+      }
+    },
+    clearMetadata: () => {
+      metadata.clear();
+    },
+    getMetadata: (): Map<string, string> => {
+      const copies = Array.from(metadata.entries());
+      return new Map(copies);
+    },
     request: async (service: string, method: string, data: Uint8Array): Promise<Uint8Array> => {
+      const cosmosBlockHeight = metadata.get("x-cosmos-block-height");
+      const queryHeight = cosmosBlockHeight ? Uint53.fromString(cosmosBlockHeight).toNumber() : undefined;
       const path = `/${service}/${method}`;
-      const response = await base.queryAbci(path, data, undefined);
+      const response = await base.queryAbci(path, data, queryHeight);
       return response.value;
     },
   };
