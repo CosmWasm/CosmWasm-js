@@ -124,7 +124,11 @@ export function assertNotEmpty<T>(value: T): T {
 
 // may will run the transform if value is defined, otherwise returns undefined
 export function may<T, U>(transform: (val: T) => U, value: T | null | undefined): U | undefined {
-  return value === undefined || value === null ? undefined : transform(value);
+  return value === undefined ||
+    value === null ||
+    (typeof value === "object" && Object.keys(value).length === 0)
+    ? undefined
+    : transform(value);
 }
 
 export function dictionaryToStringMap(obj: Record<string, unknown>): Map<string, string> {
