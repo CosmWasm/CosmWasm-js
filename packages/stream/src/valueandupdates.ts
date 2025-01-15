@@ -7,7 +7,7 @@ export type SearchFunction<T> = (value: T) => boolean;
 /**
  * A read only wrapper around DefaultValueProducer that allows
  * to synchronously get the current value using the .value property
- * and listen to to updates by suscribing to the .updates stream
+ * and listen to updates by subscribing to the .updates stream
  */
 export class ValueAndUpdates<T> {
   public readonly updates: MemoryStream<T>;

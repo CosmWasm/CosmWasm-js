@@ -25,6 +25,12 @@ describe("FaucetClient", () => {
     expect(new FaucetClient("https://localhost/")).toBeTruthy();
   });
 
+  it("should throw error if the base URL does not start with http:// or https://", () => {
+    expect(() => new FaucetClient("ftp://example.com")).toThrowError(
+      "Expected base url to start with http:// or https://",
+    );
+  });
+
   it("can be used to credit a wallet", async () => {
     pendingWithoutFaucet();
     const faucet = new FaucetClient(faucetUrl);
