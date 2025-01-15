@@ -274,6 +274,7 @@ export class SigningCosmWasmClient extends CosmWasmClient {
     signerAddress: string,
     messages: readonly EncodeObject[],
     memo: string | undefined,
+    explicitSignerData?: Partial<SignerData>,
   ): Promise<number> {
     const anyMsgs = messages.map((m) => this.registry.encodeAsAny(m));
     const accountFromSigner = (await this.signer.getAccounts()).find(
@@ -283,7 +284,15 @@ export class SigningCosmWasmClient extends CosmWasmClient {
       throw new Error("Failed to retrieve account from signer");
     }
     const pubkey = encodeSecp256k1Pubkey(accountFromSigner.pubkey);
-    const { sequence } = await this.getSequence(signerAddress);
+
+    let sequence: number;
+
+    if (explicitSignerData?.sequence !== undefined) {
+      sequence = explicitSignerData.sequence;
+    } else {
+      sequence = (await this.getSequence(signerAddress)).sequence;
+    }
+
     const { gasInfo } = await this.forceGetQueryClient().tx.simulate(anyMsgs, memo, pubkey, sequence);
     assertDefined(gasInfo);
     return Uint53.fromString(gasInfo.gasUsed.toString()).toNumber();
@@ -612,17 +621,35 @@ export class SigningCosmWasmClient extends CosmWasmClient {
     fee: StdFee | "auto" | number,
     memo = "",
     timeoutHeight?: bigint,
+    explicitSignerData?: SignerData,
   ): Promise<DeliverTxResponse> {
     let usedFee: StdFee;
+
+    let signerData: SignerData | undefined = explicitSignerData;
+    const { sequence, accountNumber } = explicitSignerData
+      ? explicitSignerData
+      : await this.getSequence(signerAddress);
+
     if (fee == "auto" || typeof fee === "number") {
       assertDefined(this.gasPrice, "Gas price must be set in the client options when auto gas is used.");
-      const gasEstimation = await this.simulate(signerAddress, messages, memo);
+      const gasEstimation = await this.simulate(signerAddress, messages, memo, { sequence });
       const multiplier = typeof fee === "number" ? fee : this.defaultGasMultiplier;
       usedFee = calculateFee(Math.round(gasEstimation * multiplier), this.gasPrice);
     } else {
       usedFee = fee;
     }
-    const txRaw = await this.sign(signerAddress, messages, usedFee, memo, undefined, timeoutHeight);
+
+    if (!signerData) {
+      const chainId = await this.getChainId();
+
+      signerData = {
+        accountNumber: accountNumber,
+        sequence: sequence,
+        chainId: chainId,
+      };
+    }
+
+    const txRaw = await this.sign(signerAddress, messages, usedFee, memo, signerData, timeoutHeight);
     const txBytes = TxRaw.encode(txRaw).finish();
     return this.broadcastTx(txBytes, this.broadcastTimeoutMs, this.broadcastPollIntervalMs);
   }

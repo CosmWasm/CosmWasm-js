@@ -102,6 +102,32 @@ describe("SigningCosmWasmClient", () => {
       expect(gasUsed).toBeLessThanOrEqual(140_000);
       client.disconnect();
     });
+    it("works with explicitSignerData", async () => {
+      pendingWithoutWasmd();
+      const wallet = await DirectSecp256k1HdWallet.fromMnemonic(alice.mnemonic, { prefix: wasmd.prefix });
+      const client = await SigningCosmWasmClient.connectWithSigner(
+        wasmd.endpoint,
+        wallet,
+        defaultSigningClientOptions,
+      );
+
+      const executeContractMsg: MsgExecuteContractEncodeObject = {
+        typeUrl: "/cosmwasm.wasm.v1.MsgExecuteContract",
+        value: MsgExecuteContract.fromPartial({
+          sender: alice.address0,
+          contract: deployedHackatom.instances[0].address,
+          msg: toUtf8(`{"release":{}}`),
+          funds: [],
+        }),
+      };
+      const memo = "Go go go";
+      const { sequence } = await client.getSequence(alice.address0);
+
+      const gasUsed = await client.simulate(alice.address0, [executeContractMsg], memo, { sequence });
+      expect(gasUsed).toBeGreaterThanOrEqual(70_000);
+      expect(gasUsed).toBeLessThanOrEqual(140_000);
+      client.disconnect();
+    });
   });
 
   describe("upload", () => {
